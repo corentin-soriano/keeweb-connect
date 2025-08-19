@@ -104,16 +104,17 @@ async function getActiveFrame(tab: chrome.tabs.Tab): Promise<number> {
                     tabId: tab.id || 0
                 },
                 func: () => {
-                    Array.from(document.querySelectorAll('iframe')).indexOf(
+                    return Array.from(document.querySelectorAll('iframe')).indexOf(
                         document.activeElement as HTMLIFrameElement
                     );
                 }
             },
-            (result: chrome.scripting.InjectionResult<void>[]) => {
+            (result: chrome.scripting.InjectionResult<number>[]) => {
                 if (chrome.runtime.lastError) {
                     return resolve(0);
                 }
-                resolve(Number(result[0]) + 1); // indexOf returns -1, then it's root document which is frameId:0
+                const idx: number = result[0]?.result ?? 0;
+                resolve(idx + 1); // indexOf returns -1, then it's root document which is frameId:0
             }
         );
     });
